@@ -13,6 +13,8 @@ import time
 
 REPO = "x9420/quantlab-data-pull"
 OUT = r"E:\QuantLab\data\prices\baostock_gh"
+OUT_MIN5 = r"E:\QuantLab\data\minute\events5m"
+os.makedirs(OUT_MIN5, exist_ok=True)
 STATE = r"E:\QuantLab\github_pull\batch_state.json"
 os.makedirs(OUT, exist_ok=True)
 
@@ -50,8 +52,9 @@ def main():
         return
     for r in runs:
         name = r.get("displayTitle") or r.get("name") or ""
-        if name != "bs-pull":
+        if name not in ("bs-pull", "min5-pull"):
             continue
+        out_dir = OUT if name == "bs-pull" else OUT_MIN5
         did = str(r["databaseId"])
         if did in state["done_batches"]:
             continue
@@ -71,7 +74,7 @@ def main():
             for f in files:
                 if f.endswith(".csv"):
                     src = os.path.join(root, f)
-                    dst = os.path.join(OUT, f)
+                    dst = os.path.join(out_dir, f)
                     if not os.path.exists(dst):
                         try:
                             os.replace(src, dst)
